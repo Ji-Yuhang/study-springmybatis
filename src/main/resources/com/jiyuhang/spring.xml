@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+<!--    datasource-->
+    <bean class="com.alibaba.druid.pool.DruidDataSource" id="dataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://192.168.31.201:3306/2001?characterEncoding=UTF-8"/>
+        <property name="username" value="root"/>
+        <property name="password" value="root"/>
+
+
+    </bean>
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactory">
+        <property name="dataSource" ref="dataSource"/>
+<!--        注入 map location和 别名-->
+        <property name="mapperLocations" value="classpath:com/jiyuhang/mapper/*.xml"/>
+        <property name="typeAliasesPackage" value="com.jiyuhang.entity"/>
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <property name="basePackage" value="com.jiyuhang.dao"/>
+    </bean>
+
+<!--    TranscationManager-->
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="dataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+<!--    advice attribute-->
+    <tx:advice id="txAdvice" transaction-manager="dataSourceTransactionManager">
+        <tx:attributes>
+            <tx:method name="save*"/>
+            <tx:method name="update*"/>
+            <tx:method name="delete*"/>
+            <tx:method name="find*" propagation="SUPPORTS" isolation="DEFAULT"/>
+        </tx:attributes>
+    </tx:advice>
+
+<!--    aop-->
+    <bean id="userAdvice" class="com.jiyuhang.advice.UserAdvice" ></bean>
+    <aop:config>
+        <aop:pointcut id="pc" expression="execution(* com.jiyuhang.service.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pc"/>
+        <aop:advisor pointcut-ref="pc" advice-ref="userAdvice"/>
+
+    </aop:config>
+<!--    service-->
+<!--    <bean id="userDAO" class="com.jiyuhang.dao.UserDAOImpl"/>-->
+    <bean id="userService" class="com.jiyuhang.service.UserServiceImpl">
+        <property name="userDAO" ref="userDAO"/>
+    </bean>
+
+<!--    action-->
+    <bean id="userAction" class="com.jiyuhang.action.UserAction" scope="prototype">
+    </bean>
+</beans>

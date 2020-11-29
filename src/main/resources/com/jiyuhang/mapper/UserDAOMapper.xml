@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiyuhang.dao.UserDAO">
+<!--    <![CDATA[&#45;&#45; insert into t_user(id,name,age) values (#{id}, #{name,jdbcType=VARCHAR}#, #{age,jdbcType=INTEGER}#)]]>-->
+
+<!--    useGeneratedKeys="true"-->
+<!--    keyProperty="id"-->
+<!--    ,jdbcType=INTEGER-->
+    <insert id="save" parameterType="com.jiyuhang.entity.User"  >
+        <![CDATA[insert into t_user (name,age) values (  #{name,jdbcType=VARCHAR}, #{age,jdbcType=INTEGER})]]>
+    </insert>
+<!--    resultType="com.jiyuhang.entity.User"-->
+<!--    resultMap="userResultMap-->
+    <select id="findAll" resultType="com.jiyuhang.entity.User">
+        <![CDATA[select id,name,age from t_user]]>
+    </select>
+    <select id="findById" resultType="com.jiyuhang.entity.User"  parameterType="Long">
+        <![CDATA[select id,name,age from t_user where id=#{id}]]>
+    </select>
+    <select id="getCount" resultType="int">
+        select  count(*) from t_user
+    </select>
+    <update id="update" parameterType="User">
+        update t_user set name=#{name}, age=#{age} where id=#{id}
+    </update>
+    <resultMap id="userResultMap" type="com.jiyuhang.entity.User">
+        <id property="id" column="id" />
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+    </resultMap>
+</mapper>
